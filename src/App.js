@@ -1,25 +1,57 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  Switch
+} from 'react-router-dom';
 
-function App() {
+import { AuthContext } from './shared/context/auth-context';
+import { useAuth } from './shared/hooks/auth-hook';
+
+import AuthPage from './users/pages/AuthPage';
+import Login from './users/components/Login';
+import Register from './users/components/Register';
+
+
+import MainNavigation from "./shared/components/Navigation/MainNavigation";
+
+
+const App = () => {
+  const { token, login, logout, userId, partnership } = useAuth();
+
+  let routes;
+
+  if (token) {
+    routes = (
+        <Switch>
+         {/*TODO routes to set signed user */}
+        </Switch>
+    );
+  } else {
+    routes = (
+     <Switch>
+       <Route path="/" exact>
+         <AuthPage />
+       </Route>
+     </Switch>
+    );
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthContext.Provider value={{
+    isLoggedIn: !!token,
+    token: token,
+    userId: userId,
+    partnership: partnership,
+    login: login,
+    logout: logout
+    }}>
+      <Router>
+        {token && <MainNavigation />}
+        <main>{routes}</main>
+      </Router>
+    </AuthContext.Provider>
   );
 }
 
