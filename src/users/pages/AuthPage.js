@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Login from "../components/Login";
 import Register from "../components/Register";
-import Button from "react-bootstrap/Button";
+
+import './AuthPage.css';
 
 
 const AuthPage = () => {
@@ -11,22 +12,12 @@ const AuthPage = () => {
         setIsLoginMode(!isLoginMode);
     };
 
-    const submitAuthForm = (event, email, password, isPartnership = undefined) => {
-        event.preventDefault();
-        console.log(email, password);
-        if (isPartnership === undefined && isLoginMode) {
-            //TODO login post
-            console.log('it works');
-        } else {
-            //TODO registration post
-            console.log('it works');
-        }
-    };
-
     return (
         <React.Fragment>
-            {isLoginMode ? <Login onSubmit={submitAuthForm}/> : <Register onSubmit={submitAuthForm}/>}
-            <Button onClick={switchModeHandler}>Zaloguj</Button>
+            <div className="auth-body">
+            {isLoginMode ? <Login switchMode={switchModeHandler}/> : <Register switchMode={switchModeHandler}/>}
+            </div>
+            <button onClick={switchModeHandler}> zmien </button>
         </React.Fragment>
     );
 

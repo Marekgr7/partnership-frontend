@@ -10,11 +10,14 @@ import { AuthContext } from './shared/context/auth-context';
 import { useAuth } from './shared/hooks/auth-hook';
 
 import AuthPage from './users/pages/AuthPage';
-import Login from './users/components/Login';
-import Register from './users/components/Register';
-
+import MainPage from './users/pages/MainPage';
+import PartnershipPage from './users/pages/PartnershipPage';
+import EmployeesPage from './users/pages/EmployeesPage';
 
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
+
+
+import './App.css';
 
 
 const App = () => {
@@ -25,7 +28,16 @@ const App = () => {
   if (token) {
     routes = (
         <Switch>
-         {/*TODO routes to set signed user */}
+            <Route path = "/" exact>
+            <MainPage />
+          </Route>
+          <Route path = "/partnership" exact>
+            <PartnershipPage />
+          </Route>
+            <Route path = "/employees" exact>
+                <EmployeesPage />
+            </Route>
+            <Redirect to="/" />
         </Switch>
     );
   } else {
@@ -34,6 +46,7 @@ const App = () => {
        <Route path="/" exact>
          <AuthPage />
        </Route>
+         <Redirect to ="/" />
      </Switch>
     );
   }
