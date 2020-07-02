@@ -55,7 +55,7 @@ const requiredValidator = (value) => {
 }
 
 const specialCase = (value) => (
-    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})").test(value) ? "" : "Hasło powinno zawierać minimum 8 znaków,jedną dużą literę jedną liczbę oraz znak specjalny "
+    new RegExp(/((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,64})/g).test(value) ? "" : "Hasło powinno zawierać minimum jeden znak, cyfrę, duża literę."
 );
 
 
@@ -64,22 +64,22 @@ const Register = props => {
     const auth = useContext(AuthContext);
 
     const handleSubmit = (data, event) => {
-
+        console.log(data);
         if (data.password !== data.passwordConf) {
-            //TODO PASSWORDS NOT MATCH !
+            alert('Hasła nie są zgodne');
         } else {
             axios.post('http://localhost:5000/api/users/signup', {
                 email: data.email,
-                password: data.password
+                password: data.password,
+                isPartnership: data.acceptedTerms
             }).then(response => {
-                auth.login(response.data.userId, response.data.token);
+                auth.login(response.data.userId, response.data.token, response.data.isPartnership, response.data.isOwner);
             }).catch(err => {
                 console.log(err);
             })
         }
         event.preventDefault();
     }
-
 
     return (
         <Form
@@ -116,9 +116,10 @@ const Register = props => {
                         component={CustomCheckbox}
                     />
 
-                    <button disabled={!formRenderProps.allowSubmit && Field.password === Field.passwordConf}>
+                    <button disabled={!formRenderProps.allowSubmit}>
                         Rejestruj
                     </button>
+                    <button onClick={() => props.switchMode()}>Jeżeli posiadasz już konto Zaloguj się</button>
                 </form>
             )}>
         </Form>

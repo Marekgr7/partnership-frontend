@@ -6,10 +6,14 @@ export const useAuth = () => {
     const [token, setToken] = useState(false);
     const [tokenExpirationDate, setTokenExpirationDate] = useState();
     const [userId, setUserId] = useState(false);
+    const [isPartnership, setIsPartnership] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
 
-    const login = useCallback((uid, token, expirationDate) => {
+    const login = useCallback((uid, token, isPartnership, isOwner, expirationDate) => {
         setToken(token);
         setUserId(uid);
+        setIsPartnership(isPartnership);
+        setIsOwner(isOwner);
         const tokenExpirationDate =
             expirationDate || new Date(new Date().getTime() + 1000 * 60 * 60);
         setTokenExpirationDate(tokenExpirationDate);
@@ -18,6 +22,8 @@ export const useAuth = () => {
             JSON.stringify({
                 userId: uid,
                 token: token,
+                isPartnership: isPartnership,
+                isOwner: isOwner,
                 expiration: tokenExpirationDate.toISOString()
             })
         );
@@ -27,6 +33,8 @@ export const useAuth = () => {
         setToken(null);
         setTokenExpirationDate(null);
         setUserId(null);
+        setIsPartnership(null);
+        setIsOwner(null);
         localStorage.removeItem('userData');
     }, []);
 
@@ -46,9 +54,9 @@ export const useAuth = () => {
             storedData.token &&
             new Date(storedData.expiration) > new Date()
         ) {
-            login(storedData.userId, storedData.token, new Date(storedData.expiration));
+            login(storedData.userId, storedData.token, storedData.isPartnership, storedData.isOwner, new Date(storedData.expiration));
         }
     }, [login]);
 
-    return { token, login, logout, userId };
+    return { token, login, logout, userId, isPartnership, isOwner };
 };

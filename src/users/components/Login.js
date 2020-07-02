@@ -36,7 +36,7 @@ const Login = props => {
             email: data.email,
             password: data.password
         }).then(response => {
-            auth.login(response.data.userId, response.data.token);
+            auth.login(response.data.userId, response.data.token, response.data.isPartnership, response.data.isOwner);
         }).catch(err => {
             console.log(err);
         });
@@ -67,6 +67,7 @@ const Login = props => {
                         />
 
                     <button>Loguj</button>
+                    <button onClick={() => props.switchMode()}>Jeżeli nie posiadasz konta Zarejestruj się</button>
                 </form>
             )}>
         </Form>

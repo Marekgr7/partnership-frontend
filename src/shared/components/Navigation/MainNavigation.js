@@ -15,8 +15,9 @@ const MainNavigation = props => {
         <Navbar.Brand>RES</Navbar.Brand>
         <Nav className="mr-auto">
             <Nav.Link><Link to="/">Strona Główna</Link></Nav.Link>
-            <Nav.Link><Link to="/partnership">Program partnerski</Link></Nav.Link>
-            <Nav.Link><Link to="/employees">Zarządzaj pracownikami</Link></Nav.Link>
+            {auth.isPartnership && <Nav.Link><Link to="/partnership">Program partnerski</Link></Nav.Link>}
+            {auth.isOwner && <Nav.Link><Link to="/employees">Zarządzaj pracownikami</Link></Nav.Link>}
+            {auth.isOwner && <Nav.Link><Link to="/settings">Ustawienia</Link></Nav.Link>}
             <Nav.Link onClick={() => auth.logout()}>Wyloguj się</Nav.Link>
         </Nav>
     </Navbar>);
