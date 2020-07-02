@@ -1,8 +1,9 @@
-import React, { Component, useContext } from "react";
+import React, { Component, useContext, useState } from "react";
 import axios from 'axios';
 import { Form, Field } from "@progress/kendo-react-form";
 import { Input, Checkbox } from "@progress/kendo-react-inputs";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
+import Modali, { useModali } from 'modali';
 
 import { AuthContext } from '../../shared/context/auth-context';
 
@@ -62,11 +63,24 @@ const specialCase = (value) => (
 const Register = props => {
 
     const auth = useContext(AuthContext);
+    const [errorMessage, setErrorMessage] = useState();
+
+    const [passModal, togglePassModal] = useModali({
+        animated: true,
+        title: 'Ups!'
+    });
+
+    const [errorModal, toggleErrorModal] = useModali({
+        animated: true,
+        title: 'Wystąpił błąd !',
+        onHide: () => {setErrorMessage(undefined)}
+    });
+
 
     const handleSubmit = (data, event) => {
         console.log(data);
         if (data.password !== data.passwordConf) {
-            alert('Hasła nie są zgodne');
+            togglePassModal();
         } else {
             axios.post('http://localhost:5000/api/users/signup', {
                 email: data.email,
@@ -75,7 +89,9 @@ const Register = props => {
             }).then(response => {
                 auth.login(response.data.userId, response.data.token, response.data.isPartnership, response.data.isOwner);
             }).catch(err => {
-                console.log(err);
+                setErrorMessage(err.response.data.message);
+                console.log(err.response.data.message);
+                toggleErrorModal();
             })
         }
         event.preventDefault();
@@ -86,6 +102,12 @@ const Register = props => {
             onSubmit={handleSubmit}
             render={(formRenderProps) => (
                 <form onSubmit={formRenderProps.onSubmit}>
+                    <Modali.Modal {...passModal}>
+                        &nbsp;&nbsp;&nbsp;&nbsp;Hasła nie są zgodne !
+                    </Modali.Modal>
+                    <Modali.Modal {...errorModal}>
+                        {errorMessage}
+                    </Modali.Modal>
                     <h1>Stwórz konto</h1>
 
                     <Field
@@ -116,10 +138,10 @@ const Register = props => {
                         component={CustomCheckbox}
                     />
 
-                    <button disabled={!formRenderProps.allowSubmit}>
+                    <button  className="button-auth" disabled={!formRenderProps.allowSubmit}>
                         Rejestruj
                     </button>
-                    <button onClick={() => props.switchMode()}>Jeżeli posiadasz już konto Zaloguj się</button>
+                    <button  className="button-auth" onClick={() => props.switchMode()}>Jeżeli posiadasz już konto Zaloguj się</button>
                 </form>
             )}>
         </Form>

@@ -14,12 +14,13 @@ import MainPage from './users/pages/MainPage';
 import PartnershipPage from './users/pages/PartnershipPage';
 import EmployeesPage from './users/pages/EmployeesPage';
 import SettingsPage from "./users/pages/SettingsPage";
+import ReferralRegisterPage from "./users/pages/ReferralRegisterPage";
 
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 
 
-import './App.css';
 
+import './App.css';
 
 const App = () => {
     const {token, login, logout, userId, isPartnership, isOwner} = useAuth();
@@ -50,6 +51,9 @@ const App = () => {
                 <Route path="/" exact>
                     <AuthPage/>
                 </Route>
+                <Route exact path="/register/:referral" render={(props) => {
+                    return <ReferralRegisterPage referral={props.match.params.referral} />
+                }}/>
                 <Redirect to="/"/>
             </Switch>
         );

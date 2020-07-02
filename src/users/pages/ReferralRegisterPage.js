@@ -1,17 +1,15 @@
-import React, {useContext, useState } from 'react';
-
+import React, { Component, useContext, useState } from "react";
+import { useHistory } from "react-router-dom";
 import axios from 'axios';
-import {Form, Field} from "@progress/kendo-react-form";
-import {Input, Checkbox} from "@progress/kendo-react-inputs";
-import {DropDownList} from "@progress/kendo-react-dropdowns";
-import Modali, {useModali} from "modali";
+import { Form, Field } from "@progress/kendo-react-form";
+import { Input, Checkbox } from "@progress/kendo-react-inputs";
+import { DropDownList } from "@progress/kendo-react-dropdowns";
+import Modali, { useModali } from 'modali';
 
-import {AuthContext} from '../../shared/context/auth-context';
-
-import './EmployeesPage.css';
+import { AuthContext } from '../../shared/context/auth-context';
 
 
-const CustomInput = ({fieldType, ...others}) => {
+const CustomInput = ({ fieldType, ...others }) => {
     return (
         <div>
             <Input
@@ -22,7 +20,7 @@ const CustomInput = ({fieldType, ...others}) => {
     );
 };
 
-const CustomDropDown = ({options, ...others}) => {
+const CustomDropDown = ({ options, ...others }) => {
     return (
         <div>
             <DropDownList
@@ -33,7 +31,7 @@ const CustomDropDown = ({options, ...others}) => {
     )
 }
 
-const CustomCheckbox = ({...props}) => {
+const CustomCheckbox = ({ ...props }) => {
     return (
         <div>
             <Checkbox {...props} />
@@ -42,10 +40,10 @@ const CustomCheckbox = ({...props}) => {
     );
 };
 
-const ValidationMessage = ({valid, visited, validationMessage}) => {
+const ValidationMessage = ({ valid, visited, validationMessage }) => {
     return (
         <>
-            {!valid && visited &&
+            { !valid && visited &&
             (<div className="required">{validationMessage}</div>)}
         </>
     );
@@ -63,10 +61,9 @@ const specialCase = (value) => (
 );
 
 
-const EmployeesPage = () => {
+const Register = props => {
 
     const auth = useContext(AuthContext);
-
     const [errorMessage, setErrorMessage] = useState();
 
     const [passModal, togglePassModal] = useModali({
@@ -80,38 +77,29 @@ const EmployeesPage = () => {
         onHide: () => {setErrorMessage(undefined)}
     });
 
-    const [successModal, toggleSuccessModal] = useModali({
-        animated: true,
-        title: 'Sukces !',
-        onHide: () => {setErrorMessage(undefined)}
-    });
-
     const handleSubmit = (data, event) => {
         console.log(data);
         if (data.password !== data.passwordConf) {
             togglePassModal();
         } else {
-            axios.post('http://localhost:5000/api/users/signup/subaccount', {
+            axios.post('http://localhost:5000/api/users/signup', {
                 email: data.email,
                 password: data.password,
-                ownerId: auth.userId
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${auth.token}`
-                }
+                isPartnership: data.acceptedTerms,
+                referralLink: props.referral
             }).then(response => {
-                toggleSuccessModal();
+                auth.login(response.data.userId, response.data.token, response.data.isPartnership, response.data.isOwner);
             }).catch(err => {
                 setErrorMessage(err.response.data.message);
+                console.log(err.response.data.message);
                 toggleErrorModal();
             })
         }
         event.preventDefault();
     }
 
-
     return (
-        <div className="auth-body-employees">
+        <div className="auth-body">
             <Form
                 onSubmit={handleSubmit}
                 render={(formRenderProps) => (
@@ -122,34 +110,37 @@ const EmployeesPage = () => {
                         <Modali.Modal {...errorModal}>
                             {errorMessage}
                         </Modali.Modal>
-                        <Modali.Modal {...successModal}>
-                            Konto zostało pomyślnie utworzone !
-                        </Modali.Modal>
-                        <h1>Stwórz konto dla pracownika</h1>
+                        <h1>Stwórz konto z polecenia !</h1>
 
                         <Field
                             label="Email"
                             name="email"
                             fieldType="email"
                             component={CustomInput}
-                            validator={emailValidator}/>
+                            validator={emailValidator} />
 
                         <Field
                             label="Hasło"
                             name="password"
                             fieldType="password"
                             component={CustomInput}
-                            validator={specialCase}/>
+                            validator={specialCase} />
 
                         <Field
                             label="Powtórz hasło"
                             name="passwordConf"
                             fieldType="password"
                             component={CustomInput}
-                            validator={requiredValidator}/>
+                            validator={requiredValidator} />
 
 
-                        <button className="button-auth" disabled={!formRenderProps.allowSubmit}>
+                        <Field
+                            label="Program Partnerski"
+                            name="acceptedTerms"
+                            component={CustomCheckbox}
+                        />
+
+                        <button  className="button-auth" disabled={!formRenderProps.allowSubmit}>
                             Rejestruj
                         </button>
                     </form>
@@ -159,4 +150,4 @@ const EmployeesPage = () => {
     );
 }
 
-export default EmployeesPage;
+export default Register;
